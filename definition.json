@@ -1,0 +1,45 @@
+{
+    "objects": [
+      {
+        "id": "Default",
+        "name": "Default",
+        "failureAndRerunMode": "CASCADE",
+        "resourceRole": "DataPipelineDefaultResourceRole",
+        "role": "DataPipelineDefaultRole",
+        "pipelineLogUri": "s3://automated-data-pipeline/logs/",
+        "scheduleType": "ONDEMAND"
+      },
+      {
+        "id": "MyEC2Resource",
+        "type": "Ec2Resource",
+        "imageId": "ami-xxxxxxxxxxxxxxxxx",
+        "instanceType": "r5.large",
+        "spotBidPrice": "2.0",
+        "terminateAfter": "30 Minutes",
+        "actionOnTaskFailure" : "terminate",
+        "maximumRetries" : "1",
+        "role": "DataPipelineDefaultRole",
+        "resourceRole": "DataPipelineDefaultResourceRole",
+        "keyPair" : "<YOUR-KEY>"
+      },
+      {
+        "id": "ShellCommandActivityObj",
+        "name": "ShellCommandActivityObj",
+        "type": "ShellCommandActivity",
+        "command": "aws s3 cp s3://automated-data-pipeline/script.sh ~/ && sudo sh ~/script.sh #{myS3DataPath}",
+        "maximumRetries": "0",
+        "runsOn": {
+            "ref": "MyEC2Resource"
+        }
+      }
+    ],
+    "parameters": [
+        {
+            "id": "myS3DataPath",
+            "name": "mys3DataPath",
+            "description": "This is the path to the data uploaded",
+            "type": "AWS::S3::ObjectKey"
+
+        }
+    ]
+}
